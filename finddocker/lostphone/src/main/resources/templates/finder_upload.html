@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Upload Found Phone | FindDocker</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8fafc;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Geometric background pattern */
+        .background-container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #f0f4ff 0%, #f8fafc 100%);
+        }
+
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        }
+
+        .bg-circle:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            right: -100px;
+        }
+
+        .bg-circle:nth-child(2) {
+            width: 200px;
+            height: 200px;
+            bottom: -50px;
+            left: -50px;
+        }
+
+        .bg-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(102, 126, 234, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(102, 126, 234, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        /* Main Container */
+        .main-container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: #4f46e5;
+            margin-bottom: 15px;
+        }
+
+        .logo-icon {
+            font-size: 32px;
+        }
+
+        .logo-text {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .tagline {
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Form Card */
+        .form-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px 35px;
+            border-radius: 20px;
+            box-shadow: 
+                0 20px 40px rgba(102, 126, 234, 0.08),
+                0 5px 15px rgba(0, 0, 0, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 25px 50px rgba(102, 126, 234, 0.12),
+                0 10px 20px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .form-title-icon {
+            color: #667eea;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 15px;
+        }
+
+        .form-label i {
+            margin-right: 8px;
+            color: #667eea;
+            width: 20px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 20px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 20px center;
+            background-size: 16px;
+            padding-right: 50px;
+        }
+
+        /* File Upload */
+        .file-upload-container {
+            position: relative;
+        }
+
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border: 2px dashed #e2e8f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-label:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .file-upload-label i {
+            color: #667eea;
+            font-size: 20px;
+        }
+
+        .file-name {
+            color: #64748b;
+            font-size: 14px;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-input {
+            position: absolute;
+            width: 0;
+            height: 0;
+            opacity: 0;
+        }
+
+        .file-requirements {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            text-decoration: none;
+            text-align: center;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-back {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-back:hover {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-dashboard {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+        }
+
+        .btn-dashboard:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+            color: white;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-left: 4px solid #667eea;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .info-box p {
+            color: #4a5568;
+            font-size: 14px;
+            margin: 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .info-box i {
+            color: #667eea;
+            margin-top: 2px;
+        }
+
+        /* Floating elements */
+        .floating-element {
+            position: fixed;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: -1;
+        }
+
+        .floating-element:nth-child(4) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .floating-element:nth-child(5) {
+            width: 60px;
+            height: 60px;
+            bottom: 20%;
+            right: 10%;
+            animation: float 10s ease-in-out infinite 2s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-card {
+                padding: 30px 25px;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+            }
+            
+            .logo-text {
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-card {
+                padding: 25px 20px;
+            }
+            
+            .form-title {
+                font-size: 20px;
+            }
+            
+            .logo {
+                gap: 8px;
+            }
+            
+            .logo-text {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background Elements -->
+    <div class="background-container">
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+        <div class="bg-grid"></div>
+    </div>
+
+    <!-- Floating Elements -->
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-search-location logo-icon"></i>
+                <span class="logo-text">FindDocker</span>
+            </div>
+            <div class="tagline">Secure Item Recovery Platform</div>
+        </div>
+
+        <div class="form-card">
+            <h2 class="form-title">
+                <i class="fas fa-upload form-title-icon"></i>
+                Upload Found Phone
+            </h2>
+
+            <div class="info-box">
+                <p>
+                    <i class="fas fa-info-circle"></i>
+                    Please provide accurate information to help return the phone to its rightful owner. All information is securely stored and verified by police authorities.
+                </p>
+            </div>
+
+            <form th:action="@{/finder/upload}" 
+                  method="post" 
+                  enctype="multipart/form-data"
+                  id="uploadForm">
+                
+                <!-- Item Type -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-mobile-alt"></i>
+                        Item Type
+                    </label>
+                    <input type="text" 
+                           name="itemType" 
+                           placeholder="Mobile Phone" 
+                           class="form-control" 
+                           required
+                           value="Mobile Phone">
+                    <small class="text-muted" style="display: block; margin-top: 5px; font-size: 13px;">
+                        Type of item found (e.g., Mobile Phone, Wallet, Keys)
+                    </small>
+                </div>
+
+                <!-- Brand and Model -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-tag"></i>
+                        Brand / Model
+                    </label>
+                    <input type="text" 
+                           name="brand" 
+                           placeholder="e.g., Samsung Galaxy S23 / Apple iPhone 14" 
+                           class="form-control" 
+                           required>
+                    <small class="text-muted" style="display: block; margin-top: 5px; font-size: 13px;">
+                        Enter brand and model if known
+                    </small>
+                </div>
+
+                <!-- IMEI Number -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-fingerprint"></i>
+                        IMEI Number
+                    </label>
+                    <input type="text" 
+                           name="imei" 
+                           placeholder="Enter 15-digit IMEI number" 
+                           class="form-control" 
+                           required
+                           pattern="[0-9]{15}"
+                           title="15-digit IMEI number">
+                    <small class="text-muted" style="display: block; margin-top: 5px; font-size: 13px;">
+                        15-digit IMEI number (check under battery or dial *#06#)
+                    </small>
+                </div>
+
+                <!-- Finder Name -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-user"></i>
+                        Finder Name
+                    </label>
+                    <input type="text" 
+                           name="finderName" 
+                           placeholder="Your full name" 
+                           class="form-control" 
+                           required>
+                    <small class="text-muted" style="display: block; margin-top: 5px; font-size: 13px;">
+                        Your name for verification purposes
+                    </small>
+                </div>
+
+                <!-- Document Type -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-id-card"></i>
+                        Document Type
+                    </label>
+                    <select name="documentType" class="form-control" required>
+                        <option value="">Select Document Type</option>
+                        <option value="Aadhar">Aadhar Card</option>
+                        <option value="PAN">PAN Card</option>
+                        <option value="Driving License">Driving License</option>
+                        <option value="Voter ID">Voter ID</option>
+                        <option value="Passport">Passport</option>
+                        <option value="Other">Other Government ID</option>
+                    </select>
+                    <small class="text-muted" style="display: block; margin-top: 5px; font-size: 13px;">
+                        Government ID for verification
+                    </small>
+                </div>
+
+                <!-- Document Upload -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-file-upload"></i>
+                        Upload Document
+                    </label>
+                    <div class="file-upload-container">
+                        <label for="document" class="file-upload-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span class="file-name" id="fileName">Choose file or drag & drop</span>
+                            <span class="badge bg-primary">Browse</span>
+                        </label>
+                        <input type="file" 
+                               name="document" 
+                               id="document" 
+                               class="file-input" 
+                               required
+                               accept=".pdf,.jpg,.jpeg,.png">
+                        <div class="file-requirements">
+                            <i class="fas fa-info-circle"></i>
+                            PDF, JPG, or PNG (Max 5MB)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="fas fa-paper-plane"></i>
+                    Submit Found Phone
+                </button>
+
+                <!-- Navigation Buttons -->
+                <div class="nav-buttons">
+                    <a href="/finder/dashboard" class="nav-btn btn-back">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Dashboard
+                    </a>
+                    <a href="/" class="nav-btn btn-dashboard">
+                        <i class="fas fa-home"></i>
+                        Go to Home
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // File upload preview
+            const fileInput = document.getElementById('document');
+            const fileNameDisplay = document.getElementById('fileName');
+            
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    fileNameDisplay.textContent = this.files[0].name;
+                    
+                    // Validate file size (5MB)
+                    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+                    if (this.files[0].size > maxSize) {
+                        alert('File size must be less than 5MB');
+                        this.value = '';
+                        fileNameDisplay.textContent = 'Choose file or drag & drop';
+                    }
+                    
+                    // Validate file type
+                    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+                    if (!allowedTypes.includes(this.files[0].type)) {
+                        alert('Please upload a PDF, JPG, or PNG file');
+                        this.value = '';
+                        fileNameDisplay.textContent = 'Choose file or drag & drop';
+                    }
+                }
+            });
+
+            // Form validation
+            const form = document.getElementById('uploadForm');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            form.addEventListener('submit', function(e) {
+                // Basic validation
+                const imeiInput = form.querySelector('input[name="imei"]');
+                const imeiValue = imeiInput.value.replace(/\D/g, ''); // Remove non-digits
+                
+                if (imeiValue.length !== 15) {
+                    e.preventDefault();
+                    alert('IMEI number must be exactly 15 digits');
+                    imeiInput.focus();
+                    return false;
+                }
+                
+                // Show loading state
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+                submitBtn.disabled = true;
+                
+                // Allow form to submit normally
+                return true;
+            });
+
+            // IMEI input validation
+            const imeiInput = form.querySelector('input[name="imei"]');
+            imeiInput.addEventListener('input', function() {
+                // Allow only digits
+                this.value = this.value.replace(/\D/g, '');
+                
+                // Limit to 15 digits
+                if (this.value.length > 15) {
+                    this.value = this.value.slice(0, 15);
+                }
+            });
+
+            // Drag and drop for file upload
+            const fileUploadLabel = document.querySelector('.file-upload-label');
+            
+            fileUploadLabel.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.style.borderColor = '#667eea';
+                this.style.background = '#f0f4ff';
+            });
+            
+            fileUploadLabel.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.style.borderColor = '#e2e8f0';
+                this.style.background = '#f8fafc';
+            });
+            
+            fileUploadLabel.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.style.borderColor = '#e2e8f0';
+                this.style.background = '#f8fafc';
+                
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    
+                    // Trigger change event
+                    const event = new Event('change', { bubbles: true });
+                    fileInput.dispatchEvent(event);
+                }
+            });
+
+            // Auto-focus first input
+            const firstInput = form.querySelector('input');
+            if (firstInput) {
+                firstInput.focus();
+            }
+
+            // Add floating animation to background circles
+            const circles = document.querySelectorAll('.bg-circle');
+            circles.forEach((circle, index) => {
+                circle.style.animation = `float ${15 + index * 5}s ease-in-out infinite ${index * 2}s`;
+            });
+        });
+    </script>
+</body>
+</html>

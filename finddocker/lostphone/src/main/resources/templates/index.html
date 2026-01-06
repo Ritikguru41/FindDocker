@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>FindDocker | Secure Item Recovery</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8fafc;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Geometric background pattern */
+        .background-container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #f0f4ff 0%, #f8fafc 100%);
+        }
+
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        }
+
+        .bg-circle:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            right: -100px;
+        }
+
+        .bg-circle:nth-child(2) {
+            width: 250px;
+            height: 250px;
+            bottom: -100px;
+            left: -50px;
+        }
+
+        .bg-circle:nth-child(3) {
+            width: 180px;
+            height: 180px;
+            top: 40%;
+            left: 10%;
+        }
+
+        .bg-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(102, 126, 234, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(102, 126, 234, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        /* Header/Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 24px;
+            color: #4f46e5;
+            text-decoration: none;
+        }
+
+        .navbar-icon {
+            font-size: 28px;
+        }
+
+        .navbar-text {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-link {
+            color: #4a5568 !important;
+            font-weight: 500;
+            margin: 0 10px;
+            padding: 8px 16px !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #4f46e5 !important;
+        }
+
+        /* Main Content */
+        .hero-section {
+            padding: 100px 0 60px;
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero-title span {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: #64748b;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        /* Action Cards */
+        .action-section {
+            padding: 60px 0;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 30px;
+            margin: 0 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.08);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .action-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 0 20px;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.15);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 25px;
+            display: inline-block;
+            padding: 20px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            color: #667eea;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 15px;
+        }
+
+        .card-description {
+            color: #64748b;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .btn-action {
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            border: none;
+            width: 100%;
+            max-width: 250px;
+        }
+
+        .btn-lost {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-lost:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+            color: white;
+        }
+
+        .btn-found {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-found:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+            color: white;
+        }
+
+        .btn-police {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn-police:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+            color: white;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 80px 0;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px 0;
+            margin-top: 80px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .footer-content {
+            text-align: center;
+            color: #64748b;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .footer-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: #5a67d8;
+            text-decoration: underline;
+        }
+
+        /* Floating elements */
+        .floating-element {
+            position: fixed;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: -1;
+        }
+
+        .floating-element:nth-child(4) {
+            width: 100px;
+            height: 100px;
+            top: 15%;
+            left: 5%;
+            animation: float 10s ease-in-out infinite;
+        }
+
+        .floating-element:nth-child(5) {
+            width: 80px;
+            height: 80px;
+            bottom: 20%;
+            right: 8%;
+            animation: float 12s ease-in-out infinite 2s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-25px) rotate(5deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .action-cards {
+                grid-template-columns: 1fr;
+                padding: 0 15px;
+            }
+            
+            .action-card {
+                padding: 30px 20px;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+            
+            .nav-link {
+                margin: 5px 0;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background Elements -->
+    <div class="background-container">
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+        <div class="bg-grid"></div>
+    </div>
+
+    <!-- Floating Elements -->
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-search-location navbar-icon"></i>
+                <span class="navbar-text">FindDocker</span>
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="#how-it-works">How It Works</a>
+                <a class="nav-link" href="#stats">Statistics</a>
+                <a class="nav-link" href="/login">Police Portal</a>
+                <a class="nav-link btn btn-outline-primary" href="/signup">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    Reconnect What's Lost with <span>FindDocker</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Our secure platform bridges the gap between lost items and their owners. 
+                    Report lost belongings, submit found items, or help verify recoveries 
+                    through our trusted network.
+                </p>
+                
+                <div class="action-section mt-5">
+                    <h2 class="section-title">What would you like to do?</h2>
+                    
+                    <div class="action-cards">
+                        <!-- Lost Item Card -->
+                        <div class="action-card">
+                            <div class="card-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <h3 class="card-title">Report Lost Item</h3>
+                            <p class="card-description">
+                                Can't find your belongings? Report them as lost and our 
+                                community will help you locate them.
+                            </p>
+                            <a href="/lost/form" class="btn-action btn-lost">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                Report Lost
+                            </a>
+                        </div>
+
+                        <!-- Found Item Card -->
+                        <div class="action-card">
+                            <div class="card-icon">
+                                <i class="fas fa-hand-holding-heart"></i>
+                            </div>
+                            <h3 class="card-title">Report Found Item</h3>
+                            <p class="card-description">
+                                Found something that isn't yours? Help return it to its 
+                                rightful owner by reporting it here.
+                            </p>
+                            <a href="/found/form" class="btn-action btn-found">
+                                <i class="fas fa-check-circle me-2"></i>
+                                Report Found
+                            </a>
+                        </div>
+
+                        <!-- Police Portal Card -->
+                        <div class="action-card">
+                            <div class="card-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3 class="card-title">Police Verification</h3>
+                            <p class="card-description">
+                                Police officers can login to verify and manage reported 
+                                items, ensuring secure and legitimate recoveries.
+                            </p>
+                            <a href="/login" class="btn-action btn-police">
+                                <i class="fas fa-user-shield me-2"></i>
+                                Police Login
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section id="stats" class="stats-section">
+        <div class="container">
+            <h2 class="section-title">Our Impact</h2>
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-number" id="recoveredCount">1,250+</div>
+                    <div class="stat-label">Items Recovered</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="usersCount">5,800+</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="policeCount">120+</div>
+                    <div class="stat-label">Police Stations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="successRate">94%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <a href="/" class="navbar-brand mb-3">
+                    <i class="fas fa-search-location navbar-icon"></i>
+                    <span class="navbar-text">FindDocker</span>
+                </a>
+                <p class="mb-4">Secure Item Recovery Platform - Bridging gaps, restoring smiles</p>
+                
+                <div class="footer-links">
+                    <a href="/privacy" class="footer-link">Privacy Policy</a>
+                    <a href="/terms" class="footer-link">Terms of Service</a>
+                    <a href="/contact" class="footer-link">Contact Us</a>
+                    <a href="/about" class="footer-link">About</a>
+                </div>
+                
+                <p class="mt-4 mb-0">&copy; 2024 FindDocker. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate statistics counters
+            function animateCounter(element, finalValue, duration = 2000) {
+                let start = 0;
+                const increment = finalValue / (duration / 16);
+                const timer = setInterval(() => {
+                    start += increment;
+                    if (start >= finalValue) {
+                        element.textContent = finalValue + (element.id === 'successRate' ? '%' : '+');
+                        clearInterval(timer);
+                    } else {
+                        element.textContent = Math.floor(start) + (element.id === 'successRate' ? '%' : '+');
+                    }
+                }, 16);
+            }
+
+            // Only animate when in viewport
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const element = entry.target;
+                        const currentText = element.textContent;
+                        const finalValue = parseInt(currentText.replace(/[^0-9]/g, ''));
+                        
+                        // Reset text to 0
+                        element.textContent = '0' + (element.id === 'successRate' ? '%' : '+');
+                        
+                        // Animate to final value
+                        animateCounter(element, finalValue);
+                        
+                        // Stop observing after animation
+                        observer.unobserve(element);
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            // Observe all stat number elements
+            document.querySelectorAll('.stat-number').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Add floating animation to background circles
+            const circles = document.querySelectorAll('.bg-circle');
+            circles.forEach((circle, index) => {
+                circle.style.animation = `float ${15 + index * 5}s ease-in-out infinite ${index * 2}s`;
+            });
+
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId !== '#') {
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    }
+                });
+            });
+
+            // Add hover effect to action cards
+            document.querySelectorAll('.action-card').forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-10px)';
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

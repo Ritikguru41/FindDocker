@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Finder Uploaded Phones | Police Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8fafc;
+            position: relative;
+            padding: 20px;
+        }
+
+        /* Geometric background pattern */
+        .background-container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #f0f4ff 0%, #f8fafc 100%);
+        }
+
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        }
+
+        .bg-circle:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            right: -100px;
+        }
+
+        .bg-circle:nth-child(2) {
+            width: 200px;
+            height: 200px;
+            bottom: -50px;
+            left: -50px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .header-title i {
+            font-size: 32px;
+            color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+        }
+
+        .header-title h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .header-subtitle {
+            color: #64748b;
+            margin-bottom: 0;
+            padding-left: 75px;
+        }
+
+        /* Stats Cards */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+        }
+
+        .stat-icon.found {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .stat-icon.verified {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .stat-icon.returned {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .stat-info h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .stat-info p {
+            color: #64748b;
+            margin: 5px 0 0;
+            font-size: 14px;
+        }
+
+        /* Table Container */
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .table-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        /* Table Styles */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 0;
+        }
+
+        .data-table thead {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .data-table thead th {
+            color: white;
+            font-weight: 600;
+            padding: 15px;
+            text-align: left;
+            border: none;
+            font-size: 15px;
+        }
+
+        .data-table thead th:first-child {
+            border-radius: 10px 0 0 0;
+        }
+
+        .data-table thead th:last-child {
+            border-radius: 0 10px 0 0;
+        }
+
+        .data-table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #f8fafc;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .data-table tbody td {
+            padding: 15px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #4a5568;
+            vertical-align: middle;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .status-found {
+            background: #fef3c7;
+            color: #d97706;
+            border: 1px solid #fde68a;
+        }
+
+        .status-verified {
+            background: #d1fae5;
+            color: #059669;
+            border: 1px solid #a7f3d0;
+        }
+
+        .status-returned {
+            background: #dbeafe;
+            color: #3b82f6;
+            border: 1px solid #bfdbfe;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-action {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-view {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-view:hover {
+            background: #3b82f6;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-verify {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-verify:hover {
+            background: #10b981;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-return {
+            background: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .btn-return:hover {
+            background: #8b5cf6;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .returned-text {
+            color: #10b981;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Phone Info */
+        .phone-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .phone-icon {
+            font-size: 20px;
+            color: #64748b;
+        }
+
+        .phone-details h6 {
+            margin: 0;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        /* Back Button */
+        .back-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .btn-back {
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-icon {
+            font-size: 70px;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h4 {
+            color: #475569;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        /* Navigation */
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #5a67d8;
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header-title h1 {
+                font-size: 1.5rem;
+            }
+            
+            .stats-section {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .table-container {
+                padding: 15px;
+                overflow-x: auto;
+            }
+            
+            .data-table {
+                font-size: 14px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn-action {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .status-badge {
+                min-width: 100px;
+                padding: 6px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-title {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .header-subtitle {
+                padding-left: 0;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background Elements -->
+    <div class="background-container">
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-header">
+        <div></div>
+        <div class="nav-links">
+            <a href="/police/dashboard">
+                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+            </a>
+            <a href="/police/lost/form">
+                <i class="fas fa-exclamation-circle me-1"></i>Report Lost
+            </a>
+            <a href="/logout">
+                <i class="fas fa-sign-out-alt me-1"></i>Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-title">
+            <i class="fas fa-mobile-alt"></i>
+            <h1>📱 Finder Uploaded Phones</h1>
+        </div>
+        <p class="header-subtitle">Review and verify phones uploaded by finders. Verify authenticity and update status.</p>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-section">
+        <div class="stat-card">
+            <div class="stat-icon found">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="stat-info">
+                <h3 th:text="${totalFound ?: '0'}"></h3>
+                <p>FOUND Items</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon verified">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+                <h3 th:text="${totalVerified ?: '0'}"></h3>
+                <p>VERIFIED Items</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon returned">
+                <i class="fas fa-gift"></i>
+            </div>
+            <div class="stat-info">
+                <h3 th:text="${totalReturned ?: '0'}"></h3>
+                <p>RETURNED Items</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Container -->
+    <div class="table-container">
+        <h3 class="table-title">All Finder Uploads</h3>
+        
+        <div th:if="${items != null and !items.isEmpty()}">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Phone Details</th>
+                        <th>IMEI Number</th>
+                        <th>Finder Info</th>
+                        <th>Document</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${items}">
+                        <td>
+                            <strong th:text="${item.id}"></strong>
+                        </td>
+                        <td>
+                            <div class="phone-info">
+                                <div class="phone-icon">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <div class="phone-details">
+                                    <h6 th:text="${item.brand}"></h6>
+                                    <small class="text-muted" th:text="${item.itemType ?: 'Mobile Phone'}"></small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <code class="text-muted" th:text="${item.imei}"></code>
+                        </td>
+                        <td>
+                            <div>
+                                <strong th:text="${item.finderUsername}"></strong><br>
+                                <small class="text-muted" th:text="${item.finderphone ?: 'Phone not provided'}"></small>
+                            </div>
+                        </td>
+                        <td>
+                            <a th:if="${item.documentPath != null and item.documentPath != ''}"
+                               th:href="@{/uploads/{path}(path=${item.documentPath})}"
+                               target="_blank"
+                               class="btn-action btn-view">
+                                <i class="fas fa-file-pdf"></i>
+                                View Document
+                            </a>
+                            <span th:if="${item.documentPath == null or item.documentPath == ''}"
+                                  class="text-muted">
+                                No document
+                            </span>
+                        </td>
+                        <td>
+                            <span th:switch="${item.status}">
+                                <span th:case="'FOUND'" class="status-badge status-found">
+                                    <i class="fas fa-search"></i>
+                                    FOUND
+                                </span>
+                                <span th:case="'VERIFIED'" class="status-badge status-verified">
+                                    <i class="fas fa-check-circle"></i>
+                                    VERIFIED
+                                </span>
+                                <span th:case="'RETURNED'" class="status-badge status-returned">
+                                    <i class="fas fa-gift"></i>
+                                    RETURNED
+                                </span>
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <span th:switch="${item.status}">
+                                    <!-- FOUND Status: Show Verify button -->
+                                    <span th:case="'FOUND'">
+                                        <a th:href="@{/police/verify/{id}(id=${item.id})}"
+                                           class="btn-action btn-verify">
+                                            <i class="fas fa-check"></i>
+                                            Verify
+                                        </a>
+                                    </span>
+                                    
+                                    <!-- VERIFIED Status: Show Mark Returned button -->
+                                    <span th:case="'VERIFIED'">
+                                        <a th:href="@{/police/return/{id}(id=${item.id})}"
+                                           class="btn-action btn-return">
+                                            <i class="fas fa-gift"></i>
+                                            Mark Returned
+                                        </a>
+                                    </span>
+                                    
+                                    <!-- RETURNED Status: Show completed message -->
+                                    <span th:case="'RETURNED'">
+                                        <span class="returned-text">
+                                            <i class="fas fa-check-circle"></i>
+                                            Returned
+                                        </span>
+                                    </span>
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Empty State -->
+        <div th:if="${items == null or items.isEmpty()}" class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-box-open"></i>
+            </div>
+            <h4>No Finder Uploads Yet</h4>
+            <p>No phones have been uploaded by finders yet. Check back later.</p>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="back-section">
+        <a href="/police/dashboard" class="btn-back">
+            <i class="fas fa-arrow-left"></i>
+            Back to Police Dashboard
+        </a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add loading animation to action buttons
+            document.querySelectorAll('.btn-action').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                    this.style.pointerEvents = 'none';
+                    
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.style.pointerEvents = 'auto';
+                    }, 3000);
+                });
+            });
+
+            // Add hover effect to table rows
+            const tableRows = document.querySelectorAll('.data-table tbody tr');
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.cursor = 'pointer';
+                });
+                
+                row.addEventListener('click', function(e) {
+                    // Don't trigger if clicking on a button
+                    if (!e.target.closest('a')) {
+                        const viewLink = this.querySelector('a.btn-view');
+                        if (viewLink) {
+                            viewLink.click();
+                        }
+                    }
+                });
+            });
+
+            // Calculate and update stats
+            function updateStats() {
+                const foundCount = document.querySelectorAll('.status-found').length;
+                const verifiedCount = document.querySelectorAll('.status-verified').length;
+                const returnedCount = document.querySelectorAll('.status-returned').length;
+                
+                // Update stat cards if they exist
+                const foundStat = document.querySelector('.stat-info h3:nth-child(1)');
+                const verifiedStat = document.querySelector('.stat-info h3:nth-child(2)');
+                const returnedStat = document.querySelector('.stat-info h3:nth-child(3)');
+                
+                if (foundStat) foundStat.textContent = foundCount;
+                if (verifiedStat) verifiedStat.textContent = verifiedCount;
+                if (returnedStat) returnedStat.textContent = returnedCount;
+            }
+
+            // Initial stats update
+            updateStats();
+
+            // Auto-refresh page every 60 seconds (optional)
+            let refreshInterval;
+            function startAutoRefresh() {
+                refreshInterval = setInterval(() => {
+                    console.log('Auto-refreshing finder uploads...');
+                    // You could add AJAX refresh here
+                    // fetch('/police/finder/items/refresh')
+                    //   .then(response => response.json())
+                    //   .then(data => updateTable(data));
+                }, 60000);
+            }
+
+            function stopAutoRefresh() {
+                if (refreshInterval) {
+                    clearInterval(refreshInterval);
+                }
+            }
+
+            // Start auto-refresh
+            startAutoRefresh();
+
+            // Stop auto-refresh when page is not visible
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    stopAutoRefresh();
+                } else {
+                    startAutoRefresh();
+                }
+            });
+
+            // Sort table by status (optional feature)
+            const tableHeaders = document.querySelectorAll('.data-table thead th');
+            tableHeaders.forEach((header, index) => {
+                if (index === 5) { // Status column
+                    header.style.cursor = 'pointer';
+                    header.addEventListener('click', function() {
+                        sortTableByStatus();
+                    });
+                }
+            });
+
+            function sortTableByStatus() {
+                console.log('Sorting table by status...');
+                // Implement sorting logic here if needed
+            }
+        });
+    </script>
+</body>
+</html>

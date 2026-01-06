@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Police Dashboard | FindDocker</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8fafc;
+            position: relative;
+        }
+
+        /* Geometric background pattern */
+        .background-container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #f0f4ff 0%, #f8fafc 100%);
+        }
+
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        }
+
+        .bg-circle:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            right: -100px;
+        }
+
+        .bg-circle:nth-child(2) {
+            width: 200px;
+            height: 200px;
+            bottom: -50px;
+            left: -50px;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 24px;
+            color: #4f46e5;
+            text-decoration: none;
+        }
+
+        .navbar-icon {
+            font-size: 28px;
+        }
+
+        .navbar-text {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-link {
+            color: #4a5568 !important;
+            font-weight: 500;
+            margin: 0 8px;
+            padding: 8px 16px !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #4f46e5 !important;
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white !important;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 40px 0;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .header-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .header-subtitle {
+            color: #64748b;
+            margin-bottom: 0;
+        }
+
+        /* Action Buttons */
+        .action-section {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 15px;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+
+        .btn-warning-custom {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-warning-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);
+            color: white;
+        }
+
+        .btn-danger-custom {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-danger-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+            color: white;
+        }
+
+        /* Stats Cards */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon {
+            font-size: 36px;
+            margin-bottom: 15px;
+            display: inline-block;
+            width: 70px;
+            height: 70px;
+            line-height: 70px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            color: #667eea;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 15px;
+        }
+
+        /* Table Container */
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .table-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .table {
+            margin: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table thead {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .table thead th {
+            border: none;
+            padding: 15px;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8fafc;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .table tbody td {
+            padding: 15px;
+            vertical-align: middle;
+            border-color: #f1f5f9;
+            color: #4a5568;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-verified {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .status-recovered {
+            background: #e0e7ff;
+            color: #4f46e5;
+        }
+
+        /* Action Buttons in Table */
+        .btn-case {
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-case:hover {
+            background: #3b82f6;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #64748b;
+        }
+
+        .empty-icon {
+            font-size: 60px;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h4 {
+            color: #475569;
+            margin-bottom: 10px;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .quick-action-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            background: #f8fafc;
+            color: #4a5568;
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+
+        .quick-action-btn:hover {
+            background: #f1f5f9;
+            color: #4f46e5;
+            border-color: #cbd5e1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn-action {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .stats-section {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .table-container {
+                padding: 15px;
+                overflow-x: auto;
+            }
+            
+            .table {
+                font-size: 14px;
+            }
+            
+            .quick-actions {
+                flex-direction: column;
+            }
+            
+            .quick-action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-title {
+                font-size: 1.5rem;
+            }
+            
+            .navbar-brand span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background Elements -->
+    <div class="background-container">
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/police/dashboard">
+                <i class="fas fa-search-location navbar-icon"></i>
+                <span class="navbar-text">FindDocker Police</span>
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link active" href="/police/dashboard">
+                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+                <a class="nav-link" href="/police/lost/form">
+                    <i class="fas fa-exclamation-circle me-1"></i>Report Lost
+                </a>
+                <a class="nav-link" href="/police/finder/items">
+                    <i class="fas fa-eye me-1"></i>Finder Uploads
+                </a>
+                <a class="nav-link" href="/logout">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Header -->
+            <div class="header">
+                <h1 class="header-title">Police Dashboard</h1>
+                <p class="header-subtitle">Manage lost and found items, verify cases, and track recovery progress</p>
+                
+                <div class="quick-actions">
+                    <a href="/police/lost/form" class="quick-action-btn">
+                        <i class="fas fa-plus-circle"></i> Report New Lost
+                    </a>
+                    <a href="/police/finder/items" class="quick-action-btn">
+                        <i class="fas fa-search"></i> Search Finder Items
+                    </a>
+                    <a href="/police/verified" class="quick-action-btn">
+                        <i class="fas fa-check-circle"></i> View Verified
+                    </a>
+                    <a href="/police/recovered" class="quick-action-btn">
+                        <i class="fas fa-box-open"></i> Recovered Items
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="stats-section">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="stat-number" th:text="${totalCases ?: '0'}"></h3>
+                    <p class="stat-label">Total Cases</p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3 class="stat-number" th:text="${pendingCases ?: '0'}"></h3>
+                    <p class="stat-label">Pending Cases</p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <h3 class="stat-number" th:text="${verifiedCases ?: '0'}"></h3>
+                    <p class="stat-label">Verified Items</p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-thumbs-up"></i>
+                    </div>
+                    <h3 class="stat-number" th:text="${recoveryRate ?: '0'}">%</h3>
+                    <p class="stat-label">Recovery Rate</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-section">
+                <div class="action-buttons">
+                    <a href="/police/lost/form" class="btn-action btn-primary-custom">
+                        <i class="fas fa-mobile-alt"></i>
+                        Report Lost Phone
+                    </a>
+                    <a href="/police/finder/items" class="btn-action btn-warning-custom">
+                        <i class="fas fa-upload"></i>
+                        View Finder Uploads
+                    </a>
+                </div>
+            </div>
+
+            <!-- Lost Items Table -->
+            <div class="table-container">
+                <h3 class="table-title">Recent Lost Items</h3>
+                
+                <div th:if="${lostItems != null and !lostItems.isEmpty()}">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Case ID</th>
+                                <th>IMEI Number</th>
+                                <th>Owner Name</th>
+                                <th>Status</th>
+                                <th>Date Reported</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item : ${lostItems}">
+                                <td>
+                                    <strong th:text="'CASE-' + ${item.id}"></strong>
+                                </td>
+                                <td>
+                                    <code class="text-muted" th:text="${item.imei}"></code>
+                                </td>
+                                <td th:text="${item.ownerName}"></td>
+                                <td>
+                                    <span class="status-badge" 
+                                          th:classappend="${item.status == 'PENDING' ? 'status-pending' : 
+                                                          item.status == 'VERIFIED' ? 'status-verified' : 
+                                                          'status-recovered'}">
+                                        <span th:text="${item.status}"></span>
+                                    </span>
+                                </td>
+                                <td>
+                                    <small th:text="${#dates.format(item.reportDate, 'dd/MM/yyyy')}"></small>
+                                </td>
+                                <td>
+                                    <a th:href="@{/police/case/{id}(id=${item.id})}" 
+                                       class="btn-case">
+                                        <i class="fas fa-eye"></i>
+                                        View Case
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Empty State -->
+                <div th:if="${lostItems == null or lostItems.isEmpty()}" class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <h4>No Lost Items Found</h4>
+                    <p>There are currently no lost items reported in the system.</p>
+                    <a href="/police/lost/form" class="btn-action btn-primary-custom mt-3">
+                        <i class="fas fa-plus-circle"></i>
+                        Report First Lost Item
+                    </a>
+                </div>
+            </div>
+
+            <!-- Logout Button -->
+            <div class="text-center mt-4">
+                <a href="/logout" class="btn-action btn-danger-custom">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add active state to current nav link
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+
+            // Animate stats cards
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+
+            // Add loading animation to action buttons
+            document.querySelectorAll('.btn-action').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // Only for internal links
+                    if (this.getAttribute('href') && !this.getAttribute('href').startsWith('#')) {
+                        const originalText = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                        this.style.pointerEvents = 'none';
+                        
+                        // Reset after 3 seconds if page doesn't change
+                        setTimeout(() => {
+                            this.innerHTML = originalText;
+                            this.style.pointerEvents = 'auto';
+                        }, 3000);
+                    }
+                });
+            });
+
+            // Add hover effect to table rows
+            const tableRows = document.querySelectorAll('.table tbody tr');
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.cursor = 'pointer';
+                });
+            });
+
+            // Auto-refresh data every 30 seconds (optional)
+            let refreshInterval;
+            function startAutoRefresh() {
+                refreshInterval = setInterval(() => {
+                    console.log('Auto-refreshing dashboard data...');
+                    // You could add AJAX refresh here if needed
+                }, 30000); // 30 seconds
+            }
+
+            function stopAutoRefresh() {
+                if (refreshInterval) {
+                    clearInterval(refreshInterval);
+                }
+            }
+
+            // Start auto-refresh when page loads
+            startAutoRefresh();
+
+            // Stop auto-refresh when page is hidden
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    stopAutoRefresh();
+                } else {
+                    startAutoRefresh();
+                }
+            });
+
+            // Add notification badge for pending cases
+            const pendingCases = parseInt(document.querySelector('.stat-card:nth-child(2) .stat-number').textContent);
+            if (pendingCases > 0) {
+                const navLink = document.querySelector('a[href="/police/finder/items"]');
+                if (navLink) {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-danger rounded-pill ms-1';
+                    badge.textContent = pendingCases;
+                    navLink.appendChild(badge);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
